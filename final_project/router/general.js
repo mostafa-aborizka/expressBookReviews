@@ -1,6 +1,5 @@
 const express = require('express');
 let books = require("./booksdb.js");
-const { doesExist } = require('./auth_users.js');
 let doesExist = require("./auth_users.js").doesExist;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
