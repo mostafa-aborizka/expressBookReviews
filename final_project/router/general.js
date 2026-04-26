@@ -23,30 +23,89 @@ public_users.post("/register", (req,res) => {
     }
 });
 
-public_users.get('/',function (req, res) {
-    res.send(JSON.stringify(books,null,4));
+public_users.get('/', async function (req, res) {
+    try{
+        const getBooks = () => { 
+            return new Promise((resolve => resolve(books)))
+        };
+    const data = await getBooks();
+    res.json(data);
+    } catch(err){
+        res.status(500).json({message: "Error retrieving books"});
+    }    
 });
 
-public_users.get('/isbn/:isbn',function (req, res) {
+public_users.get('/isbn/:isbn', async function (req, res) {
     const isbn = req.params.isbn;
-    res.send(books[isbn]);
- });
+    try{
+        const getBook = () => {
+            return new Promise((resolve) => resolve(books[isbn]));
+        }
+    const data = await getBook();
+    if (data.length === 0) {
+        return res.status(404).json({ message: "No books found" });
+    }
+    res.json(data);    
+    } catch(err) {
+        res.status(500).json({message:"Unable to find book"});
+
+    }
+});
   
-public_users.get('/author/:author',function (req, res) {
+public_users.get('/author/:author', async function (req, res) {
     const author = req.params.author;
-    let filteredBooks= Object.values(books).filter((book) => book.author === author);
-    res.send(filteredBooks);
+    try {
+        const getBook = () => {
+            return new Promise((resolve) =>{
+                let filteredBooks= Object.values(books).filter((book) => book.author === author);
+                resolve(filteredBooks);
+            })
+        }
+    const data = await getBook();
+    if (data.length === 0) {
+        return res.status(404).json({ message: "No books found for this author" });
+    }
+    res.json(data);    
+    } catch(err){
+        res.status(500).json({message:"Unable to find book"})
+    }
 });
 
-public_users.get('/title/:title',function (req, res) {
+public_users.get('/title/:title', async function (req, res) {
     const title = req.params.title;
-    let filteredBooks = Object.values(books).filter((book) => book.title === title);
-    res.send(filteredBooks);
+    try {
+        const getBook= () => {
+            return new Promise((resolve) => {
+                let filteredBooks = Object.values(books).filter((book) => book.title === title);
+                resolve(filteredBooks);
+            })
+        }
+        const data = await getBook();
+        if (data.length === 0) {
+            return res.status(404).json({ message: "No books found with this title" });
+        }
+        res.json(data);
+    } catch(err){
+        res.status(500).json({message:"Unable to find book"});
+    }
 });
 
-public_users.get('/review/:isbn',function (req, res) {
+public_users.get('/review/:isbn', async function (req, res) {
     const isbn = req.params.isbn;
-    res.send(books.reviews[isbn]);
+    try {
+        const getBook = () => {
+            return new Promise((resolve)=>{
+                resolve(books.reviews[isbn]);
+            })
+        }
+        const data = await getBook();
+        if (data.length === 0) {
+            return res.status(404).json({ message: "No reviews found" });
+        }
+        res.json(data);
+    }catch(err){
+        res.status(500).json({message:"Unable to find review"});
+    }
 });
 
 module.exports.general = public_users;
